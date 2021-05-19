@@ -36,7 +36,7 @@ init_printing()
 ```
 
 ```{code-cell} ipython3
-from qutip_symbolic._sympy_physics_quantum.pauli import SigmaX, SigmaY, SigmaZ
+from qutip_symbolic.compat.pauli import SigmaX, SigmaY, SigmaZ
 ```
 
 ```{code-cell} ipython3
@@ -96,7 +96,7 @@ hamiltonian_transformation(U, sx)
 hamiltonian_transformation(U, sz)
 ```
 
-so the Hamiltonian after this transformation takes the form 
+so the Hamiltonian after this transformation takes the form
 
 ```{code-cell} ipython3
 H1 = hamiltonian_transformation(U, H)
@@ -124,7 +124,7 @@ with the solution
 Eq(tan(theta), Delta/eps)
 ```
 
-Substituting this into the Hamiltonian results in 
+Substituting this into the Hamiltonian results in
 
 ```{code-cell} ipython3
 H3 = simplify(H2.subs(theta, atan(Delta/eps)))
