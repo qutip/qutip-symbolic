@@ -5,6 +5,10 @@ jupytext:
     format_name: myst
     format_version: 0.13
     jupytext_version: 1.11.2
+kernelspec:
+  display_name: Python 3
+  language: python
+  name: python3
 ---
 
 # Lectures - Symbolic quantum mechanics with SymPsi - Table of content
@@ -28,7 +32,7 @@ Disclaimer: The SymPsi module is still under active development and may change i
 
 +++
 
-These notebooks are vaguely written in the form of lecture notes. However, the point of these notebooks is not to give an introduction to quantum mechanics or even the topics covered by the notebooks, but rather demonstrate how analytical calculations that are often necessary when working with these quantum mechanical systems can be carried out symbolically. 
+These notebooks are vaguely written in the form of lecture notes. However, the point of these notebooks is not to give an introduction to quantum mechanics or even the topics covered by the notebooks, but rather demonstrate how analytical calculations that are often necessary when working with these quantum mechanical systems can be carried out symbolically.
 
 +++
 
