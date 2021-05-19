@@ -40,14 +40,20 @@ Disclaimer: The SymPsi module is still under active development and may change i
 ## Setup modules
 
 ```{code-cell} ipython3
-from sympy import *
+from sympy import collect, symbols, simplify, Add, Mul, Eq, I, exp, powsimp, init_printing
+from sympy.physics.quantum import Dagger
+from sympy.physics.quantum.boson import BosonOp
 init_printing()
 ```
 
 ```{code-cell} ipython3
-from sympsi import *
-from sympsi.boson import *
-from sympsi.pauli import *
+from qutip_symbolic.compat.pauli import SigmaX, SigmaY, SigmaZ, SigmaMinus, SigmaPlus
+```
+
+```{code-cell} ipython3
+from qutip_symbolic.transformations import hamiltonian_transformation, unitary_transformation
+from qutip_symbolic.operator_utilities import drop_terms_containing, drop_c_number_terms
+from qutip_symbolic.qsimplify import qsimplify
 ```
 
 ## The Jaynes-Cummings model
@@ -257,7 +263,7 @@ H5 = collect(H4, [Dagger(a) * a, sz])
 H5
 ```
 
-Now move to a frame co-rotating with the qubit and oscillator frequencies: 
+Now move to a frame co-rotating with the qubit and oscillator frequencies:
 
 ```{code-cell} ipython3
 H5.expand()
@@ -331,7 +337,12 @@ This is the Hamiltonian of the Jaynes-Cummings model in the the dispersive regim
 ## Versions
 
 ```{code-cell} ipython3
-%reload_ext version_information
+import sympy
+import qutip_symbolic
+print("sympy:", sympy.__version__)
+print("qutip_symbolic", qutip_symbolic.__version__)
+```
 
-%version_information sympy, sympsi
+```{code-cell} ipython3
+
 ```
