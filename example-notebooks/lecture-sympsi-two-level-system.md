@@ -40,7 +40,7 @@ from qutip_symbolic.compat.pauli import SigmaX, SigmaY, SigmaZ
 ```
 
 ```{code-cell} ipython3
-from qutip_symbolic.transformations import hamiltonian_transformation, unitary_transformation
+from qutip_symbolic.transformations import hamiltonian_transformation
 from qutip_symbolic.operator_utilities import split_coeff_operator
 ```
 
