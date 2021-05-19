@@ -5,6 +5,10 @@ jupytext:
     format_name: myst
     format_version: 0.13
     jupytext_version: 1.11.2
+kernelspec:
+  display_name: Python 3
+  language: python
+  name: python3
 ---
 
 # Lecture 5 - Symbolic quantum mechanics using SymPsi - Optomechanics
@@ -35,15 +39,17 @@ Disclaimer: The SymPsi module is still under active development and may change i
 
 ## Setup modules
 
-```{code-cell}
-from sympy import *
+```{code-cell} ipython3
+from sympy import collect, symbols, exp, conjugate, Eq, I, Symbol, init_printing
+from sympy.physics.quantum import Dagger
+from sympy.physics.quantum.boson import BosonOp
+from sympy.physics.quantum.operatorordering import normal_ordered_form
 init_printing()
 ```
 
-```{code-cell}
-from sympsi import *
-from sympsi.boson import *
-from sympsi.operatorordering import *
+```{code-cell} ipython3
+from qutip_symbolic.transformations import hamiltonian_transformation
+from qutip_symbolic.operator_utilities import drop_terms_containing, drop_c_number_terms
 ```
 
 ## Optomechanical system
@@ -56,17 +62,16 @@ $$
 H = \hbar\omega_a a^\dagger a + \hbar \omega_b b^\dagger b - \hbar g a^\dagger a (b + b^\dagger) + (A e^{-i\omega_d t} + A^* e^{i\omega_d t})(a + a^\dagger)
 $$
 
-
-```{code-cell}
+```{code-cell} ipython3
 omega_a, omega_b, g, A, Delta, t = symbols("omega_a, omega_b, g, A, Delta, t", positive=True)
 Hsym, omega_d = symbols("H, omega_d")
 ```
 
-```{code-cell}
+```{code-cell} ipython3
 a, b = BosonOp("a"), BosonOp("b")
 ```
 
-```{code-cell}
+```{code-cell} ipython3
 H0 = omega_a * Dagger(a) * a + omega_b * Dagger(b) * b - g * Dagger(a) * a * (b + Dagger(b))
 
 Hdrive = (A * exp(-I * omega_d * t) + conjugate(A) * exp(I * omega_d * t)) * (a + Dagger(a))
@@ -82,13 +87,13 @@ Eq(Hsym, H)
 
 First we apply the unitary transformation $U = e^{i \omega_d a^\dagger a t}$:
 
-```{code-cell}
+```{code-cell} ipython3
 U = exp(I * Dagger(a) * a * omega_d * t)
 
 U
 ```
 
-```{code-cell}
+```{code-cell} ipython3
 H1 = hamiltonian_transformation(U, H, independent=True)
 
 H1
@@ -96,7 +101,7 @@ H1
 
 We can now perform a rotating-wave approximation (RWA) by eliminating all terms that rotate with frequencies $2\omega_d$:
 
-```{code-cell}
+```{code-cell} ipython3
 H2 = drop_terms_containing(H1.expand(), [exp(-2*I*omega_d*t), exp(2*I*omega_d*t)])
 
 Eq(Symbol("H_{rwa}"), H2)
@@ -104,7 +109,7 @@ Eq(Symbol("H_{rwa}"), H2)
 
 Introduce the detuning $\Delta = \omega_a - \omega_d$:
 
-```{code-cell}
+```{code-cell} ipython3
 H3 = H2.subs(omega_a, Delta + omega_d).expand()
 
 H3
@@ -112,18 +117,18 @@ H3
 
 To eliminate the coherent part of the state of the cavity mode we apply the unitary displacement operator $U = e^{\alpha a^\dagger - \alpha^*a}$:
 
-```{code-cell}
+```{code-cell} ipython3
 alpha = symbols("alpha")
 ```
 
-```{code-cell}
+```{code-cell} ipython3
 UH = Dagger(a) * alpha - conjugate(alpha) * a
 U = exp(UH)
 
 U
 ```
 
-```{code-cell}
+```{code-cell} ipython3
 H4 = hamiltonian_transformation(U, H3, independent=True)
 
 H4
@@ -131,7 +136,7 @@ H4
 
 Now want to cancel out the drivng terms so we set $A - \Delta \alpha = 0$, i.e. $\alpha = A/\Delta$:
 
-```{code-cell}
+```{code-cell} ipython3
 H5 = H4.expand().subs({A: alpha * Delta, conjugate(alpha): alpha}) 
 
 H5 = collect(H5, [g * Dagger(a) * a, - alpha * g])
@@ -141,7 +146,7 @@ H5
 
 Drop C-numbers from the Hamiltonian:
 
-```{code-cell}
+```{code-cell} ipython3
 H6 = drop_c_number_terms(H5)
 
 H6
@@ -149,7 +154,7 @@ H6
 
 Now, if driving strength is large, so that $\alpha \gg 1$, we can drop the nonlinear interaction term, and we have an linear effective coupling:
 
-```{code-cell}
+```{code-cell} ipython3
 H7 = H6.subs(g * Dagger(a) * a, 0)
 
 e = (a + Dagger(a)) * (b + Dagger(b))
@@ -168,46 +173,46 @@ This linearlized optomechanical Hamiltonian has at least two interesting regimes
 
 The red sideband regime occurs when the detuning is $\Delta = \omega_b$. In this case, if we move to a frame rotating with the driving field, we obtain:
 
-```{code-cell}
+```{code-cell} ipython3
 H1 = H7
 H1
 ```
 
-```{code-cell}
+```{code-cell} ipython3
 U = exp(I * Dagger(a) * a * Delta * t)
 U
 ```
 
-```{code-cell}
+```{code-cell} ipython3
 H2 = hamiltonian_transformation(U, H1, independent=True)
 H2
 ```
 
-```{code-cell}
+```{code-cell} ipython3
 U = exp(I * Dagger(b) * b * omega_b * t)
 U
 ```
 
-```{code-cell}
+```{code-cell} ipython3
 H3 = hamiltonian_transformation(U, H2, independent=True)
 H3
 ```
 
 If we substitute $\Delta = \omega_b$ we get:
 
-```{code-cell}
+```{code-cell} ipython3
 H4 = H3.expand().subs(Delta, omega_b)
 H4
 ```
 
 Now we can do a rotating-wave approximation and get rid of terms rotating at angular frequencies $2\omega_b$, and then transform back to the original frame:
 
-```{code-cell}
+```{code-cell} ipython3
 H5 = drop_terms_containing(H4, [exp(+2 * I * omega_b * t), exp(-2 * I * omega_b * t)])
 H5
 ```
 
-```{code-cell}
+```{code-cell} ipython3
 U = exp(-I * Dagger(a) * a * omega_b * t)  # Delta = omega_b
 H6 = hamiltonian_transformation(U, H5, independent=True)
 U = exp(-I * Dagger(b) * b * omega_b * t)
@@ -226,21 +231,21 @@ Now the interaction term is $a^\dagger b + ab^\dagger$, which is a swapping inte
 
 If, instead, we choose a driving frequency such that $\Delta = -\omega_b$, we obtain:
 
-```{code-cell}
+```{code-cell} ipython3
 H4 = H3.expand().subs(Delta, -omega_b)
 H4
 ```
 
 As before, we do a rotating-wave approximation to get rid of fast oscillating terms:
 
-```{code-cell}
+```{code-cell} ipython3
 H5 = drop_terms_containing(H4, [exp(+2 * I * omega_b * t), exp(-2 * I * omega_b * t)])
 H5
 ```
 
 and moving back to the original frame results in:
 
-```{code-cell}
+```{code-cell} ipython3
 U = exp( I * Dagger(a) * a * omega_b * t)  # Delta = -omega_b
 H6 = hamiltonian_transformation(U, H5, independent=True)
 U = exp(-I * Dagger(b) * b * omega_b * t)
@@ -263,27 +268,27 @@ $$
 U = \exp\left(-\frac{g}{\omega_b} a^\dagger a (b^\dagger - b)\right)
 $$
 
-```{code-cell}
+```{code-cell} ipython3
 H0
 ```
 
-```{code-cell}
+```{code-cell} ipython3
 x = symbols("x")
 ```
 
-```{code-cell}
+```{code-cell} ipython3
 U = exp(- x * Dagger(a) * a * (Dagger(b) - b))
 
 U
 ```
 
-```{code-cell}
+```{code-cell} ipython3
 H1 = H0.subs(A, 0)
 
 H1
 ```
 
-```{code-cell}
+```{code-cell} ipython3
 H2 = hamiltonian_transformation(U, H1, independent=True, expansion_search=False, N=2)
 
 H3 = normal_ordered_form(H2.expand(), independent=True)
@@ -291,7 +296,7 @@ H3 = normal_ordered_form(H2.expand(), independent=True)
 H3
 ```
 
-```{code-cell}
+```{code-cell} ipython3
 H4 = H3.subs({x**2: 0, x**3: 0, x: g/omega_b})  # neglect higher order terms
 
 H4 = collect(H4, Dagger(a)*a)
@@ -305,8 +310,13 @@ In this Hamiltonian, the mechanical and optical mode is effectively decoupled, b
 
 ## Versions
 
-```{code-cell}
-%reload_ext version_information
+```{code-cell} ipython3
+import sympy
+import qutip_symbolic
+print("sympy:", sympy.__version__)
+print("qutip_symbolic", qutip_symbolic.__version__)
+```
 
-%version_information sympy, sympsi
+```{code-cell} ipython3
+
 ```
