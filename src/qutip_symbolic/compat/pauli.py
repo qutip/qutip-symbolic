@@ -2,7 +2,6 @@
 
 from sympy import I, Mul, Add, Pow, exp, Integer
 from .operator import Operator
-# from sympy.physics.quantum import Operator
 from sympy.physics.quantum import ComplexSpace, Ket, Bra
 from sympy.matrices import Matrix
 from sympy.functions.special.tensor_functions import KroneckerDelta
