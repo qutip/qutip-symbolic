@@ -115,6 +115,47 @@ def extract_operator_products(e, independent=False):
     return list(set(no_ops))
 
 
+def drop_terms_containing(e, e_drops):
+    """
+    Drop terms contaning factors in the list e_drops
+    """
+    if isinstance(e, Add):
+        # fix this
+        # e = Add(*(arg for arg in e.args if not any([e_drop in arg.args
+        #                                            for e_drop in e_drops])))
+
+        new_args = []
+
+        for term in e.args:
+
+            keep = True
+            for e_drop in e_drops:
+                if e_drop in term.args:
+                    keep = False
+
+                if isinstance(e_drop, Mul):
+                    if all([(f in term.args) for f in e_drop.args]):
+                        keep = False
+
+            if keep:
+                # new_args.append(arg)
+                new_args.append(term)
+        e = Add(*new_args)
+        # e = Add(*(arg.subs({key: 0 for key in e_drops}) for arg in e.args))
+
+    return e
+
+
+def drop_c_number_terms(e):
+    """
+    Drop commuting terms from the expression e
+    """
+    if isinstance(e, Add):
+        return Add(*(arg for arg in e.args if not arg.is_commutative))
+
+    return e
+
+
 def subs_single(O, subs_map):
 
     if isinstance(O, Operator):
