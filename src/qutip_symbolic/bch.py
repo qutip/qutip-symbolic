@@ -188,6 +188,8 @@ def bch_expansion(A, B, N=6, collect_operators=None, independent=False,
                     var_list.append(nexps)
                 else:
                     var_list.append(sym_)
+            else:
+                var_list.append(sym_)
         else:
             var_list.append(sym)
 
