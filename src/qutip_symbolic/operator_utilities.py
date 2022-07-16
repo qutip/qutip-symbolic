@@ -1,8 +1,7 @@
-from sympy import Add, Mul, Pow, Symbol
-from .compat.operator import Operator
+from sympy import Add, Mul, Pow, Symbol, Expr
+#from .compat.operator import Operator
+from sympy.physics.quantum import Operator
 from sympy.physics.quantum.operatorordering import normal_ordered_form
-
-debug = False  # TODO: replace with logging
 
 
 def split_coeff_operator(e):
@@ -16,37 +15,42 @@ def split_coeff_operator(e):
         Commuting factors and noncommuting (operator) factors
     """
     if isinstance(e, Symbol):
-        return e, 1
-
-    if isinstance(e, Operator):
+        if e.is_commutative:
+            return e, 1
         return 1, e
+
+    if isinstance(e, Pow):
+        c, o = split_coeff_operator(e.base)
+        return (c ** e.exp, o ** e.exp)
 
     if isinstance(e, Mul):
         c_args = []
         o_args = []
 
         for arg in e.args:
-            if isinstance(arg, Operator):
-                o_args.append(arg)
-            elif isinstance(arg, Pow):
-                c, o = split_coeff_operator(arg.base)
-
-                if c and c != 1:
-                    c_args.append(c ** arg.exp)
-                if o and o != 1:
-                    o_args.append(o ** arg.exp)
-            elif isinstance(arg, Add):
+            if isinstance(arg, Add):
                 if arg.is_commutative:
                     c_args.append(arg)
                 else:
                     o_args.append(arg)
             else:
-                c_args.append(arg)
+                c, o = split_coeff_operator(arg)
+                if c != 1:
+                    c_args.append(c)
+                if o != 1:
+                    o_args.append(o)
 
         return Mul(*c_args), Mul(*o_args)
 
     if isinstance(e, Add):
         return [split_coeff_operator(arg) for arg in e.args]
+
+    if isinstance(e, Expr):  # also covers the Operator case
+        # is_commuative may also be None
+        if e.is_commutative is True:
+            return e, 1
+        elif e.is_commutative is False:
+            return 1, e
 
     raise TypeError(f"split_coeff_operator: {e!r} has unsupported type")
 
