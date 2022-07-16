@@ -48,10 +48,7 @@ def split_coeff_operator(e):
     if isinstance(e, Add):
         return [split_coeff_operator(arg) for arg in e.args]
 
-    if debug:
-        print("Warning: Unrecognized type of e: %s" % type(e))
-
-    return None, None
+    raise TypeError(f"split_coeff_operator: {e!r} has unsupported type")
 
 
 def extract_operators(e, independent=False):
